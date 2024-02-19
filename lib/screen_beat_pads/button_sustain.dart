@@ -12,12 +12,12 @@ class SustainButtonDoubleTap extends StatefulWidget {
 }
 
 class _SustainButtonDoubleTapState extends State<SustainButtonDoubleTap> {
-  bool sustainState = false;
+  bool sustainState = true;
 
   @override
   void dispose() {
-    if (sustainState == true) {
-      MidiUtils.sendSustainMessage(widget.channel, state: false);
+    if (sustainState == false) {
+      MidiUtils.sendSustainMessage(widget.channel, state: true);
     }
     super.dispose();
   }
@@ -31,10 +31,18 @@ class _SustainButtonDoubleTapState extends State<SustainButtonDoubleTap> {
       padding: EdgeInsets.fromLTRB(0, padSpacing, padSpacing, padSpacing),
       child: GestureDetector(
         onDoubleTap: () => setState(() {
-          sustainState = true;
+          sustainState = false;
           MidiUtils.sendSustainMessage(widget.channel, state: sustainState);
         }),
         onTapDown: (_) {
+          if (sustainState) {
+            setState(() {
+              sustainState = false;
+              MidiUtils.sendSustainMessage(widget.channel, state: sustainState);
+            });
+          }
+        },
+        onTapUp: (_) {
           if (!sustainState) {
             setState(() {
               sustainState = true;
@@ -42,18 +50,10 @@ class _SustainButtonDoubleTapState extends State<SustainButtonDoubleTap> {
             });
           }
         },
-        onTapUp: (_) {
-          if (sustainState) {
-            setState(() {
-              sustainState = false;
-              MidiUtils.sendSustainMessage(widget.channel, state: sustainState);
-            });
-          }
-        },
         onPanEnd: (_) {
-          if (sustainState) {
+          if (!sustainState) {
             setState(() {
-              sustainState = false;
+              sustainState = true;
               MidiUtils.sendSustainMessage(widget.channel, state: sustainState);
             });
           }
